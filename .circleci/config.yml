@@ -256,8 +256,8 @@ workflows:
           filters:
               branches:
                 only:
-                  -develop
-                  -test
+                  - develop
+                  - test
       - deploy_staging:
           context: acceptance
           requires:
@@ -265,5 +265,5 @@ workflows:
           filters:
               branches:
                   only:
-                    -develop
-                    -test
+                    - develop
+                    - test
