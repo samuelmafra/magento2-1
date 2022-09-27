@@ -94,15 +94,15 @@ jobs:
       - run:
           name: Run ElasticSearch
           command: |
-            docker run --name elasticsearch7 -d -p9200:9200 elasticsearch:7.7.1
+            docker run --name elasticsearch7 --network magento-network -d -p9200:9200 elasticsearch:7.7.1
       - run:
           name: Build image base for modifications
           command: |
-            docker exec -it elasticsearch7 touch test.txt
+            docker exec -it elasticsearch7 ls
             cd /app
             ls
             docker build -t ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest .
-            docker run --name newimage -d -p3306:3306 -p80:80 ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest
+            docker run --name newimage -d -p3306:3306 -p80:80 --network magento-network ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest
             docker exec -it newimage ls
              docker exec -it newimage sh -c "mkdir /app/tmp"
              docker cp /app/wait-for-mysql.sh newimage:app/tmp/
