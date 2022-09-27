@@ -98,6 +98,7 @@ jobs:
       - run:
           name: Build image base for modifications
           command: |
+            docker exec -it elasticsearch7 touch test.txt
             cd /app
             ls
             docker build -t ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest .
@@ -106,6 +107,7 @@ jobs:
              docker exec -it newimage sh -c "mkdir /app/tmp"
              docker cp /app/wait-for-mysql.sh newimage:app/tmp/
              docker cp /app/magento2_module_install.sql newimage:app/tmp/
+            docker exec -it newimage curl -X GET "elasticsearch7:9200/_cluster/health?pretty"
       - run:
           name: Install Magento2 Inventory Module
           command: |
