@@ -92,13 +92,17 @@ jobs:
              cp .circleci/data/wait-for-mysql.sh .
              cp .circleci/data/magento2_module_install.sql .
       - run:
+          name: Run ElasticSearch
+          command: |
+            docker run --name elasticsearch7 -d -p9200:9200 elasticsearch:7.7.1
+      - run:
           name: Build image base for modifications
           command: |
-             cd /app
-             ls
-             docker build -t ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest .
-             docker run --name newimage -d -p3306:3306 -p80:80 ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest
-             docker exec -it newimage ls
+            cd /app
+            ls
+            docker build -t ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest .
+            docker run --name newimage -d -p3306:3306 -p80:80 ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest
+            docker exec -it newimage ls
              docker exec -it newimage sh -c "mkdir /app/tmp"
              docker cp /app/wait-for-mysql.sh newimage:app/tmp/
              docker cp /app/magento2_module_install.sql newimage:app/tmp/
