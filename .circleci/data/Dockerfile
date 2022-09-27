@@ -1,4 +1,4 @@
-FROM gabrieldeveloper/magento2:2.3.4-php7.3
+FROM mauriciohaygert/magento2:2.4.3-php7.4
 MAINTAINER Open Source Team
 
 WORKDIR /app
