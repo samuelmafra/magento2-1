@@ -79,7 +79,7 @@ jobs:
   publish:
     working_directory: /
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: docker:rc-git
     steps:
       - setup_remote_docker
       - attach_workspace:
@@ -97,7 +97,7 @@ jobs:
           command: |
             cd /app
             ls
-            docker-compose -up -d --build
+            docker compose -up -d --build
       - run:
           name: Activate and setup Plugin
           command: |
