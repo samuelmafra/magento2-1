@@ -104,7 +104,7 @@ jobs:
           command: |
             docker ps
             docker exec -it magento2_bitnami sh -c "composer config minimum-stability dev"
-            docker exec -it magento2_bitnami sh -c "composer require pagarme/pagarme-magento2-module:~2"
+            docker exec -it magento2_bitnami sh -c "composer require pagarme/pagarme-magento2-module:dev-test"
       - store_artifacts:
           path: /error
       - run:
@@ -129,7 +129,68 @@ jobs:
       - run:
           name: Test Swagger
           command: |
-            response=$(curl -s -o /dev/null -I -w "%{http_code}" http://sbx-magento2.mundipagg.com/rest/all/schema?services=all)
+            response=$(curl -s -o /dev/null -I -w "%{http_code}" http://stg-magento2.mundipagg.com/rest/all/schema?services=all)
+            if [ "$response" = '200' ]; then echo 'Swagger Ok'; else echo 'Swagger invalid'; exit 1; fi
+      - run:
+          name: Send deployment webhook to Rancher
+          command: |
+            BODY='{"push_data":{"tag":"'"${CIRCLE_BRANCH}"'"},"repository":{"repo_name":"'"${DOCKER_ACCOUNT}/${PROJECT_NAME}"'"}}'
+            curl -X POST ${RANCHER_STG_DEPLOY_URL} -H 'Content-Type: application/json' -d "${BODY}"
+
+  publish_php8:
+    working_directory: /
+    docker:
+      - image: docker:rc-git
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: /
+      - run:
+          name: Copy CI files to root
+          command: |
+            cd /app
+            cp .circleci/data/auth.json .
+            cp .circleci/data/docker-compose.yml .
+            cp .circleci/data/Dockerfile .
+            cp .circleci/data/wait-for-mysql.sh .
+            cp .circleci/data/magento2_module_install.sql .
+      - run:
+          name: Build image base for modifications
+          command: |
+            cd /app
+            ls
+            docker compose up -d
+      - run:
+          name: Activate and setup Plugin
+          command: |
+            docker ps
+            docker exec -it magento2_bitnami sh -c "composer config minimum-stability dev"
+            docker exec -it magento2_bitnami sh -c "composer require pagarme/pagarme-magento2-module:~2"
+      - store_artifacts:
+          path: /error
+      - run:
+          name: Clear useless files
+          command: |
+            pwd
+      - deploy:
+          name: Commit and push Docker image
+          command: |
+            sleep 5 && docker stop magento2_bitnami
+            docker login ${DOCKER_ACCOUNT} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+            docker commit magento2_bitnami ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest
+            docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest"
+            docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_BRANCH}"
+            docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_SHA1:0:8}"
+            docker push "${DOCKER_ACCOUNT}/${PROJECT_NAME}"
+
+  deploy_staging_php8:
+    machine:
+      image: << pipeline.parameters.machine_image >>
+    steps:
+      - run:
+          name: Test Swagger
+          command: |
+            response=$(curl -s -o /dev/null -I -w "%{http_code}" http://stg-magento2.mundipagg.com/rest/all/schema?services=all)
             if [ "$response" = '200' ]; then echo 'Swagger Ok'; else echo 'Swagger invalid'; exit 1; fi
       - run:
           name: Send deployment webhook to Rancher
@@ -171,7 +232,6 @@ workflows:
             branches:
               only:
                 - develop
-                - php8
                 - test
       - deploy_staging:
           context: acceptance
@@ -181,6 +241,20 @@ workflows:
             branches:
               only:
                 - develop
-                - php8
                 - test
+      - publish_php8:
+          context: acceptance
+          requires:
+            - build
+            - sonar
+          filters:
+            branches:
+              only: php8
+      - deploy_staging_php8:
+          context: acceptance
+          requires:
+            - publish_php8
+          filters:
+            branches:
+              only: php8
 
