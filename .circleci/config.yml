@@ -138,11 +138,7 @@ workflows:
   version: 2
   build_publish_deploy:
     jobs:
-      - build:
-          filters:
-            branches:
-              ignore:
-                - test
+      - build
       - sonar:
           context: dockerhub
           filters:
