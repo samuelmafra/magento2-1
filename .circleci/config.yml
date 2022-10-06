@@ -97,7 +97,7 @@ jobs:
           command: |
             cd /app
             ls
-            docker compose -up -d --build
+            docker compose up -d --build
       - run:
           name: Activate and setup Plugin
           command: |
@@ -138,9 +138,20 @@ workflows:
   version: 2
   build_publish_deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              ignore:
+                - test
       - sonar:
           context: dockerhub
+          filters:
+            branches:
+              ignore:
+                - master
+                - develop
+                - php8
+                - test
       - check_quality_gate_sonar:
           context: dockerhub
           requires:
