@@ -10,6 +10,7 @@ services:
   mariadb:
     image: docker.io/bitnami/mariadb:10.4
     environment:
+      - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_USER=bn_magento
       - MARIADB_PASSWORD=MX01]UI9(1@p*dUQ
       - MARIADB_DATABASE=bitnami_magento
@@ -30,6 +31,7 @@ services:
       - MAGENTO_DATABASE_NAME=bitnami_magento
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT_NUMBER=9200
+      - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - 'magento_data:/bitnami/magento'
     depends_on:
