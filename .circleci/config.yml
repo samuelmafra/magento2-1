@@ -164,7 +164,7 @@ jobs:
           name: Activate and setup Plugin
           command: |
             docker ps
-            docker exec -it magento2_bitnami sh -c "cd /bitnami/magento && composer config minimum-stability dev"
+            docker exec -it magento2_bitnami sh -c "cd /bitnami/magento && ls && php composer config minimum-stability dev"
             docker exec -it magento2_bitnami sh -c "cd /bitnami/magento && composer require pagarme/pagarme-magento2-module:~2"
       - store_artifacts:
           path: /error
