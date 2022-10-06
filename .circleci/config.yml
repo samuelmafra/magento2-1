@@ -88,6 +88,7 @@ jobs:
           name: Copy CI files to root
           command: |
             cd /app
+            cp .circleci/data/auth.json .
             cp .circleci/data/docker-compose.yml .
             cp .circleci/data/Dockerfile .
             cp .circleci/data/wait-for-mysql.sh .
