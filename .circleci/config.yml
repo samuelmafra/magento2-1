@@ -98,11 +98,13 @@ jobs:
           command: |
             cd /app
             ls
-            docker compose up -d --build
+            docker compose up -d
       - run:
           name: Activate and setup Plugin
           command: |
             docker ps
+            docker exec -it magento2_bitnami sh -c "composer config minimum-stability dev"
+            docker exec -it magento2_bitnami sh -c "composer require pagarme/pagarme-magento2-module:~2"
       - store_artifacts:
           path: /error
       - run:
