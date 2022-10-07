@@ -104,7 +104,7 @@ jobs:
           command: |
             docker ps
             docker exec -it magento2_bitnami sh -c "cd /opt/bitnami/magento && composer config minimum-stability dev"
-            docker exec -it magento2_bitnami sh -c "cd /opt/bitnami/magento && composer require pagarme/pagarme-magento2-module:dev-test --no-interaction"
+            docker exec -it magento2_bitnami sh -c "cd /opt/bitnami/magento && composer --no-interaction require pagarme/pagarme-magento2-module:dev-test"
       - store_artifacts:
           path: /error
       - run:
