@@ -1,8 +1,7 @@
-FROM bitnami/magento:2
+FROM bitnami/magento:2.4.3
 MAINTAINER Open Source Team
 
 WORKDIR /opt/bitnami/magento
 COPY auth.json /opt/bitnami/magento
-RUN composer config minimum-stability dev
-RUN composer require pagarme/pagarme-magento2-module:~2
+RUN composer require pagarme/pagarme-magento2-module:dev-test
 
