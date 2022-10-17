@@ -166,7 +166,7 @@ jobs:
           command: |
             sleep 5 && docker stop magento2_bitnami
             docker login ${DOCKER_ACCOUNT} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-            docker commit magento2_bitnami ${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest
+            docker commit magento2_bitnami ${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_BRANCH}"
             docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:latest"
             docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_BRANCH}"
             docker tag ${DOCKER_ACCOUNT}/${PROJECT_NAME} "${DOCKER_ACCOUNT}/${PROJECT_NAME}:${CIRCLE_SHA1:0:8}"
